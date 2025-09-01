@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindForge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>MindForge</h1>
+    </header>
+    <div id="game-status" aria-live="polite" role="status"></div>
+    <main>
+        <aside id="left-tab" aria-label="Options">
+            <button id="btn-show-last">Show previous move</button>
+            <button id="btn-restart" style="margin-top:6px">Restart Game</button>
+            <button id="btn-hint">Hint</button>
+            <div style="margin-top:8px">
+                <label>AI Level:
+                    <select id="ai-level">
+                        <option value="1">Easy (1 ply)</option>
+                        <option value="2" selected>Normal (2 ply)</option>
+                        <option value="4">Hard (4 ply)</option>
+                        <option value="6">Very Hard (6 ply)</option>
+                        <option value="8">Insane (8 ply)</option>
+                    </select>
+                </label>
+            </div>
+            <div style="margin-top:6px">
+                <label><input type="checkbox" id="chk-stockfish"> Use Stockfish if available</label>
+            </div>
+            <div style="margin-top:6px">
+                <label>Depth <input type="number" id="sf-depth" value="8" min="1" max="40" style="width:56px"></label>
+            </div>
+            <div id="last-move-info" aria-live="polite"></div>
+            <div id="game-analysis" style="margin-top:10px;font-size:0.9rem;color:#cfeee0"></div>
+         
+
+            <hr>
+            <div class="advanced-accordion">
+                <button id="adv-toggle" aria-expanded="false">Advanced ▸</button>
+                <div id="adv-panel" class="collapsed">
+                    <div id="engine-controls">
+                        <div id="engine-validator">
+                            <button id="btn-check-engine">Check Stockfish Engine</button>
+                            <div id="engine-status" aria-live="polite" style="margin-top:6px;font-size:0.9rem"></div>
+                        </div>
+                        <div id="engine-uploader" style="margin-top:8px">
+                            <label>Upload stockfish.js (browser build): <input type="file" id="file-engine" accept=".js"/></label>
+                            <div id="uploader-status" style="margin-top:6px;font-size:0.9rem"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <div class="board-wrap">
+            <div class="files top" id="files-top"></div>
+            <div class="ranks left" id="ranks-left"></div>
+            <div id="game-board" aria-label="MindForge game board"></div>
+            <div class="ranks right" id="ranks-right"></div>
+            <div class="files bottom" id="files-bottom"></div>
+        </div>
+    </main>
+    <script src="app.js" type="module"></script>
+</body>
+</html>

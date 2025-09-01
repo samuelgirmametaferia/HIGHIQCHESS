@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true">
+  <defs>
+    <linearGradient id="wraithGrad" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ff7a1a"/>
+      <stop offset="1" stop-color="#c70000"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(10,8)">
+    <polygon points="40,6 74,78 6,78" fill="url(#wraithGrad)" />
+    <circle cx="40" cy="42" r="7" fill="#fff7e6" opacity="0.95"/>
+  </g>
+</svg>  

@@ -1,0 +1,212 @@
+body {
+    font-family: 'Orbitron', sans-serif;
+    background-color: #121212;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+@keyframes gradientMovement {
+    0% {
+        background-position: 50% 50%;
+    }
+
+    25% {
+        background-position: 75% 25%;
+    }
+
+    50% {
+        background-position: 50% 75%;
+    }
+
+    75% {
+        background-position: 25% 25%;
+    }
+
+    100% {
+        background-position: 50% 50%;
+    }
+}
+
+header {
+    background-color: #1a1a1a;
+    color: #ffd700;
+    padding: 15px 0;
+    box-shadow: 0 4px 10px rgba(255, 215, 0, 0.5);
+    width: 100%;
+    z-index: 1000;
+}
+
+#game-status{position:fixed;left:50%;transform:translateX(-50%);top:64px;background:rgba(0,0,0,0.6);color:#ffd700;padding:8px 14px;border-radius:8px;z-index:120;display:none}
+#game-status.show{display:block}
+#game-status.check{background:linear-gradient(90deg,#1e3a8a,#06b6d4);color:#fff}
+#game-status.checkmate{background:linear-gradient(90deg,#7c0b0b,#ff4d4d);color:#fff}
+/* performance notice styling */
+#game-status.notice{background:linear-gradient(90deg,#f6d365,#fda085);color:#222}
+
+h1 {
+    margin: 0;
+    font-size: 32px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+main {
+    padding: 20px;
+    margin-top: 60px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Left options tab */
+#left-tab{
+    position: fixed;
+    left: 12px;
+    top: 100px;
+    width: 160px;
+    background: linear-gradient(180deg,#0f1724,#0b1220);
+    padding:10px;border-radius:8px;color:#dfeff0;border:1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6);z-index:80;font-family:'Orbitron',sans-serif;
+}
+#left-tab button{display:block;width:100%;padding:8px;border-radius:6px;border:none;background:#123; color:#6ee7b7;cursor:pointer;margin-bottom:8px}
+#left-tab .highlight{color:#ffd700;font-size:13px}
+
+/* Advanced accordion */
+.advanced-accordion{margin-top:8px}
+.advanced-accordion #adv-toggle{display:block;width:100%;padding:6px;border-radius:6px;border:none;background:#081225;color:#9bd;cursor:pointer;text-align:left}
+.advanced-accordion #adv-panel{overflow:hidden;transition:max-height 0.22s ease;padding-top:6px}
+.advanced-accordion #adv-panel.collapsed{max-height:0;padding-top:0}
+.advanced-accordion #adv-panel:not(.collapsed){max-height:400px}
+.advanced-accordion #engine-controls{padding:6px;border-radius:6px;background:linear-gradient(180deg,#061019,#071426);border:1px solid rgba(255,255,255,0.02)}
+
+/* previous move highlight */
+.tile.prev-from{outline:3px solid rgba(255,160,0,0.9);outline-offset:-3px}
+.tile.prev-to{box-shadow: inset 0 0 18px rgba(255,255,255,0.12), 0 0 20px rgba(255,80,0,0.8)}
+.tile.suggest-from{outline:3px solid rgba(0,200,120,0.95);outline-offset:-3px}
+.tile.suggest-to{box-shadow: inset 0 0 18px rgba(0,200,120,0.14), 0 0 18px rgba(0,200,120,0.6)}
+
+
+
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    width: 80vmin;
+    height: 80vmin;
+    border-radius: 20px;
+    border: 5px solid #ffd700;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7), 0 0 15px rgba(255, 215, 0, 0.3);
+
+    background-color: #0a0a0a;
+    overflow: hidden;
+}
+
+.tile {
+    position: relative; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2vmin;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    border: 1px solid #222;
+
+    box-sizing: border-box;
+}
+
+.tile:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+}
+
+.tile.light {
+    background-color: #1e1e1e;
+    color: #fff;
+}
+
+.tile.dark {
+    background-color: #2c2c2c;
+    color: #fff;
+}
+
+.tile.selected {
+    outline: 3px solid #ffd700;
+    outline-offset: -3px;
+}
+
+.tile.valid-move {
+    box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.6);
+}
+.Player {
+    filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.9));
+}
+
+.AI {
+    filter: drop-shadow(0 0 20px rgba(0, 0, 255, 0.9));
+}
+.piece {
+    position: relative;
+    z-index: 1;
+}
+
+
+.dot,
+.take{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    pointer-events: none;
+    z-index: 50;
+    display: block;
+}
+
+.take {
+    z-index: 60;
+    filter: drop-shadow(0 0 10px rgba(255, 50, 50, 0.9));
+}
+
+.dot {
+    z-index: 55;
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.95));
+}
+
+/* board wrapper for coordinates */
+.board-wrap{position:relative;display:inline-block;margin:auto}
+.files{display:flex;justify-content:space-between;padding:6px 8px;color:#cfeee0;font-weight:700}
+.files.top{position:absolute;top:-34px;left:0;right:0}
+.files.bottom{position:absolute;bottom:-34px;left:0;right:0}
+.ranks{display:flex;flex-direction:column;justify-content:space-between;position:absolute;top:0;bottom:0;color:#cfeee0;font-weight:700;padding:6px}
+.ranks.left{left:-30px}
+.ranks.right{right:-30px}
+.coord{font-size:14px;opacity:0.9}
+
+/* Planning overlay */
+.planning-overlay{pointer-events:none;z-index:200;}
+.planning-overlay .plan-arrow{filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6));}
+.planning-overlay .plan-start-marker{filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6));}
+
+/* Drag ghost */
+.piece-ghost{position:fixed;pointer-events:none;z-index:999;transform:translate(-50%,-50%) scale(1.00);opacity:0.95;filter:drop-shadow(0 8px 20px rgba(0,0,0,0.6));}
+
+/* GPU history thumbnail active state */
+.gpu-thumb{border-radius:4px;overflow:hidden}
+.gpu-thumb.active{box-shadow:0 0 0 2px rgba(123,230,201,0.18), inset 0 0 12px rgba(123,230,201,0.06)}
+
+/* thumbnail wrapper and remove button */
+.gpu-thumb-wrapper{position:relative;display:inline-block;border-radius:4px;overflow:hidden;margin:2px}
+.gpu-thumb-remove{position:absolute;right:2px;top:2px;width:18px;height:18px;border-radius:3px;background:rgba(0,0,0,0.5);color:#fff;border:1px solid rgba(255,255,255,0.06);font-size:12px;line-height:16px;text-align:center;cursor:pointer;opacity:0.85}
+.gpu-thumb-remove:hover{background:rgba(255,80,80,0.95)}

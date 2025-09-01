@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true">
+  <defs>
+    <radialGradient id="echoGrad" cx="50%" cy="40%">
+      <stop offset="0%" stop-color="#fff7ea"/>
+      <stop offset="45%" stop-color="#ffd6b3"/>
+      <stop offset="100%" stop-color="#ff8a33"/>
+    </radialGradient>
+
+    <filter id="glow" x="-50%" y="-50%" width="500%" height="500%">
+      <feDropShadow dx="0" dy="0" stdDeviation="20" flood-color="red" flood-opacity="0.95"/>
+    </filter>
+  </defs>
+
+  <rect width="100" height="100" fill="none"/>
+
+  <g transform="translate(10,10)" filter="url(#glow)">
+
+    <circle cx="40" cy="40" r="36" fill="url(#echoGrad)"/>
+
+    <circle cx="40" cy="40" r="14" fill="#fff"/>
+
+    <circle cx="40" cy="40" r="26" fill="none" stroke="#fff7ea" stroke-opacity="0.14" stroke-width="4"/>
+
+  </g>
+</svg>
