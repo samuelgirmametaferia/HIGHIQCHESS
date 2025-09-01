@@ -64,5 +64,37 @@
         </div>
     </main>
     <script src="app.js" type="module"></script>
+    <!-- Floating Rule Book button and modal -->
+    <button id="btn-rulebook" class="fab-rulebook" aria-label="Open rule book" title="Rule Book">📖</button>
+    <div id="rulebook-modal" class="rulebook-modal hidden" aria-hidden="true" role="dialog" aria-labelledby="rulebook-title">
+        <div class="rulebook-backdrop"></div>
+        <div class="rulebook-card" role="document">
+            <div class="rulebook-header">
+                <h2 id="rulebook-title">Rule Book</h2>
+                <button id="rulebook-close" class="rulebook-close" aria-label="Close">✕</button>
+            </div>
+            <div class="rulebook-body">
+                <p>Welcome! This game is a fast, chess-like variant with custom pieces.</p>
+                <ul>
+                    <li>Goal: checkmate the opponent's King (piece 1). If the King is captured or has no legal moves while in check, the game ends.</li>
+                    <li>Turns: players alternate moves. You play the side shown at the bottom.</li>
+                    <li>How to move: click a piece to show legal moves (dots) and captures (red). Click again on a dot/take to move.</li>
+                    <li>Drag and drop: you can drag your pieces to a highlighted square.</li>
+                    <li>Planning: hold Ctrl to draw green planning arrows; hold Alt to set a blue premove (executed automatically when it's your turn and still legal).</li>
+                    <li>Legality: the engine won’t allow moves that leave your King in check.</li>
+                </ul>
+                <h3>Pieces (indices)</h3>
+                <ul>
+                    <li>1 – King: steps one square in any direction; don’t leave it in check.</li>
+                    <li>3 – Bishop-like: slides diagonally.</li>
+                    <li>5 – Queen-like: slides diagonally and orthogonally.</li>
+                    <li>4 – Rook-stepper: steps one square orthogonally; has a special forward jump in some cases.</li>
+                    <li>2 – Jumper: leaps two squares in straight/diagonal directions (can hop).</li>
+                    <li>0 – Light piece: short limited steps.</li>
+                </ul>
+                <p>Tip: Use the Hint button for suggestions. The AI may think for up to ~1 second per move.</p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

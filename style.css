@@ -1,3 +1,16 @@
+/* Rulebook floating button */
+.fab-rulebook{position:fixed;left:12px;bottom:12px;z-index:1000;border:none;background:#0f5132;color:#e9fff4;padding:10px 12px;border-radius:8px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:18px}
+.fab-rulebook:hover{background:#0b3f27}
+
+/* Rulebook modal */
+.rulebook-modal.hidden{display:none}
+.rulebook-modal{position:fixed;inset:0;z-index:1001;display:flex;align-items:center;justify-content:center}
+.rulebook-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.5)}
+.rulebook-card{position:relative;background:#03231a;color:#e9fff4;border:1px solid rgba(255,255,255,0.08);border-radius:12px;max-width:640px;width:92%;max-height:80vh;overflow:auto;box-shadow:0 8px 24px rgba(0,0,0,0.35);}
+.rulebook-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.rulebook-close{background:transparent;border:none;color:#e9fff4;font-size:16px;cursor:pointer}
+.rulebook-body{padding:14px 16px;line-height:1.5}
+.rulebook-body ul{margin:8px 0 8px 18px}
 body {
     font-family: 'Orbitron', sans-serif;
     background-color: #121212;

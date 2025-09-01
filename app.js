@@ -692,3 +692,19 @@ window.addEventListener('keydown', (e)=>{
     applyAndRender(boardState);
     }
 });
+
+// Rule Book modal wiring (init after DOM ready since markup is after script tag)
+function setupRulebook(){
+    const rbBtn = document.getElementById('btn-rulebook');
+    const rbModal = document.getElementById('rulebook-modal');
+    const rbClose = document.getElementById('rulebook-close');
+    function open(){ if(!rbModal) return; rbModal.classList.remove('hidden'); rbModal.setAttribute('aria-hidden','false'); try{ rbClose && rbClose.focus(); }catch(e){} }
+    function close(){ if(!rbModal) return; rbModal.classList.add('hidden'); rbModal.setAttribute('aria-hidden','true'); }
+    if(rbBtn) rbBtn.addEventListener('click', open);
+    if(rbClose) rbClose.addEventListener('click', close);
+    if(rbModal){ rbModal.addEventListener('click', (e)=>{ const t = e.target; if(t && t.classList && t.classList.contains('rulebook-backdrop')) close(); }); }
+    window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') close(); });
+    // show on first load
+    open();
+}
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupRulebook); else setupRulebook();
