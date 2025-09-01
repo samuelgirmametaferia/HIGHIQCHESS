@@ -84,13 +84,13 @@
                     <li>Legality: the engine won’t allow moves that leave your King in check.</li>
                 </ul>
                 <h3>Pieces (indices)</h3>
-                <ul>
-                    <li>1 – King: steps one square in any direction; don’t leave it in check.</li>
-                    <li>3 – Bishop-like: slides diagonally.</li>
-                    <li>5 – Queen-like: slides diagonally and orthogonally.</li>
-                    <li>4 – Rook-stepper: steps one square orthogonally; has a special forward jump in some cases.</li>
-                    <li>2 – Jumper: leaps two squares in straight/diagonal directions (can hop).</li>
-                    <li>0 – Light piece: short limited steps.</li>
+                <ul class="pieces-list">
+                    <li><img class="piece-icon" src="./pieces/1.svg" width="36" height="36" alt="Piece 1 – King" onerror="this.style.display='none'"> <span>1 – King: steps one square in any direction; don’t leave it in check.</span></li>
+                    <li><img class="piece-icon" src="./pieces/3.svg" width="36" height="36" alt="Piece 3 – Bishop-like" onerror="this.style.display='none'"> <span>3 – Bishop-like: slides diagonally.</span></li>
+                    <li><img class="piece-icon" src="./pieces/5.svg" width="36" height="36" alt="Piece 5 – Queen-like" onerror="this.style.display='none'"> <span>5 – Queen-like: slides diagonally and orthogonally.</span></li>
+                    <li><img class="piece-icon" src="./pieces/4.svg" width="36" height="36" alt="Piece 4 – Rook-stepper" onerror="this.style.display='none'"> <span>4 – Rook-stepper: steps one square orthogonally; has a special jump. You can jump one piece on to free space. </span></li>
+                    <li><img class="piece-icon" src="./pieces/2.svg" width="36" height="36" alt="Piece 2 – Jumper" onerror="this.style.display='none'"> <span>2 – Jumper: leaps two squares in straight/diagonal directions (can hop).</span></li>
+                    <li><img class="piece-icon" src="./pieces/0.svg" width="36" height="36" alt="Piece 0 – Light piece" onerror="this.style.display='none'"> <span>0 – Light piece: short limited steps.</span></li>
                 </ul>
                 <p>Tip: Use the Hint button for suggestions. The AI may think for up to ~1 second per move.</p>
             </div>

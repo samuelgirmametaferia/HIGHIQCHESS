@@ -11,6 +11,9 @@
 .rulebook-close{background:transparent;border:none;color:#e9fff4;font-size:16px;cursor:pointer}
 .rulebook-body{padding:14px 16px;line-height:1.5}
 .rulebook-body ul{margin:8px 0 8px 18px}
+.rulebook-body .pieces-list{list-style:none;margin:10px 0 0 0;padding:0}
+.rulebook-body .pieces-list li{display:flex;align-items:center;gap:10px;margin:8px 0}
+.piece-icon{width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.6));background:rgba(255,255,255,0.06);border-radius:6px;padding:4px}
 body {
     font-family: 'Orbitron', sans-serif;
     background-color: #121212;

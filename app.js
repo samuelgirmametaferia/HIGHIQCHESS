@@ -698,13 +698,44 @@ function setupRulebook(){
     const rbBtn = document.getElementById('btn-rulebook');
     const rbModal = document.getElementById('rulebook-modal');
     const rbClose = document.getElementById('rulebook-close');
-    function open(){ if(!rbModal) return; rbModal.classList.remove('hidden'); rbModal.setAttribute('aria-hidden','false'); try{ rbClose && rbClose.focus(); }catch(e){} }
+    function ensureIcons(){
+        const list = rbModal && rbModal.querySelector('.pieces-list');
+        if(!list) return;
+        // if no <img> present (or list empty), rebuild it programmatically
+        const hasImg = list.querySelector('img');
+        if(hasImg) return;
+        const entries = [
+            { idx: 1, text: '1 – King: steps one square in any direction; don’t leave it in check.' },
+            { idx: 3, text: '3 – Bishop-like: slides diagonally.' },
+            { idx: 5, text: '5 – Queen-like: slides diagonally and orthogonally.' },
+            { idx: 4, text: '4 – Rook-stepper: steps one square orthogonally; has a special jump. You can jump one piece on to free space.' },
+            { idx: 2, text: '2 – Jumper: leaps two squares in straight/diagonal directions (can hop).' },
+            { idx: 0, text: '0 – Light piece: short limited steps.' }
+        ];
+        list.innerHTML = '';
+        for(const e of entries){
+            const li = document.createElement('li');
+            const img = document.createElement('img');
+            img.className = 'piece-icon';
+            img.src = `./pieces/${e.idx}.svg`;
+            img.width = 36; img.height = 36;
+            img.alt = `Piece ${e.idx}`;
+            img.onerror = () => { img.style.display = 'none'; };
+            const span = document.createElement('span');
+            span.textContent = e.text;
+            li.appendChild(img); li.appendChild(span);
+            list.appendChild(li);
+        }
+        try{ console.debug('[rulebook] rebuilt pieces list with icons'); }catch(_){ }
+    }
+    function open(){ if(!rbModal) return; ensureIcons(); rbModal.classList.remove('hidden'); rbModal.setAttribute('aria-hidden','false'); try{ rbClose && rbClose.focus(); }catch(e){} }
     function close(){ if(!rbModal) return; rbModal.classList.add('hidden'); rbModal.setAttribute('aria-hidden','true'); }
     if(rbBtn) rbBtn.addEventListener('click', open);
     if(rbClose) rbClose.addEventListener('click', close);
     if(rbModal){ rbModal.addEventListener('click', (e)=>{ const t = e.target; if(t && t.classList && t.classList.contains('rulebook-backdrop')) close(); }); }
     window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') close(); });
     // show on first load
+    ensureIcons();
     open();
 }
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupRulebook); else setupRulebook();
