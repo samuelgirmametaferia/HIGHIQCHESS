@@ -85,7 +85,7 @@ window.addEventListener('premove:set', (e)=>{
     pendingPremove = e.detail;
 });
 
-function runAIMove(){
+async function runAIMove(){
     if(gameOver) return;
     const depthSel = parseInt(document.getElementById('ai-level')?.value || '2',10);
     // show thinking status and disable controls
@@ -93,14 +93,55 @@ function runAIMove(){
     if(statusEl){ statusEl.textContent = `AI thinking (depth ${depthSel})...`; statusEl.className='show'; }
     const controls = [document.getElementById('ai-level'), document.getElementById('btn-restart'), document.getElementById('btn-hint')];
     controls.forEach(c=>{ if(c) c.disabled = true; });
-    const best = findBestMove(boardState, aiColor, depthSel);
-    if(!best) return;
-    const newB = movePiece(boardState, best.pieceIndex, aiColor, best.fromRow, best.fromCol, best.toRow, best.toCol);
-    try{ recordMove({ color: aiColor, pieceIndex: best.pieceIndex, fromRow: best.fromRow, fromCol: best.fromCol, toRow: best.toRow, toCol: best.toCol }); }catch{}
-    applyAndRender(newB);
-    // re-enable controls and clear status
+    // indicate AI is thinking (used by renderer to disable input)
+    try{ if(typeof window !== 'undefined') window.AI_THINKING = true; }catch(e){}
+    // use worker to avoid blocking main thread
+    const id = Math.floor(Math.random()*1e9);
+    let worker = null;
+    let timedOut = false;
+    try{
+        worker = new Worker(new URL('./aiWorker.js', import.meta.url), { type: 'module' });
+        const res = await new Promise((resolve, reject)=>{
+            const onMsg = (ev)=>{ 
+                const d = ev.data; 
+                if(!d || d.id !== id) return; 
+                // handle progress messages (intermediate best-so-far)
+                if(d.progress){
+                    const p = d.progress;
+                    const mv = p.move || p.best || null;
+                    if(mv && statusEl){ statusEl.textContent = `AI thinking (depth ${p.depth}) - best so far: ${mv.fromRow},${mv.fromCol}→${mv.toRow},${mv.toCol}`; }
+                    return; // don't resolve yet
+                }
+                worker.removeEventListener('message', onMsg);
+                if(d.success) resolve(d); else reject(new Error(d.error||'worker failed'));
+            };
+            worker.addEventListener('message', onMsg);
+            worker.postMessage({ id, board: boardState, color: aiColor, depth: depthSel, timeLimitMs: 900 });
+            const to = setTimeout(()=>{ timedOut = true; worker.terminate(); reject(new Error('AI worker timeout')); }, 1200);
+        });
+        const best = res.move;
+        if(best){
+            const newB = movePiece(boardState, best.pieceIndex, aiColor, best.fromRow, best.fromCol, best.toRow, best.toCol);
+            try{ recordMove({ color: aiColor, pieceIndex: best.pieceIndex, fromRow: best.fromRow, fromCol: best.fromCol, toRow: best.toRow, toCol: best.toCol }); }catch{}
+            applyAndRender(newB);
+        }
+    }catch(err){
+        // fallback to synchronous (slower) search if worker fails
+        console.warn('AI worker failed or timed out, falling back:', err && err.message ? err.message : err);
+        try{
+            const best = findBestMove(boardState, aiColor, depthSel, { timeLimitMs: 800 });
+            if(best){
+                const newB = movePiece(boardState, best.pieceIndex, aiColor, best.fromRow, best.fromCol, best.toRow, best.toCol);
+                try{ recordMove({ color: aiColor, pieceIndex: best.pieceIndex, fromRow: best.fromRow, fromCol: best.fromCol, toRow: best.toRow, toCol: best.toCol }); }catch{}
+                applyAndRender(newB);
+            }
+        }catch(e){ console.error('Synchronous AI failed', e); }
+    }finally{
+        try{ if(worker) worker.terminate(); }catch(e){}
+    try{ if(typeof window !== 'undefined') window.AI_THINKING = false; }catch(e){}
     if(statusEl){ setTimeout(()=>{ statusEl.className=''; statusEl.textContent=''; }, 200); }
-    controls.forEach(c=>{ if(c) c.disabled = false; });
+        controls.forEach(c=>{ if(c) c.disabled = false; });
+    }
 }
 
 // after any move is applied, if it was by the AI (opponent), try to execute any pending premove

@@ -81,6 +81,7 @@ export function renderBoard(board2D) {
 
                 if (pieceIndex < 7 && pieceValue[0] == playerColor) {
                     piece.addEventListener("click", evt => {
+                        if(typeof window !== 'undefined' && window.AI_THINKING) return; // ignore clicks while AI thinking
                         console.log(`Clicked on piece ${pieceValue} at (${logicalX}, ${logicalY})`);
                         // pass logical row (logicalY) then logical column (logicalX)
                         cleanDots();
@@ -88,9 +89,10 @@ export function renderBoard(board2D) {
                     });
                     // pointer-based drag support
                     piece.style.touchAction = 'none';
-                    piece.addEventListener('pointerdown', startDrag);
+                    piece.addEventListener('pointerdown', (e)=>{ if(typeof window !== 'undefined' && window.AI_THINKING) return; startDrag(e); });
                 } else {
                     piece.addEventListener("click", evt => {
+                        if(typeof window !== 'undefined' && window.AI_THINKING) return;
                         console.log(`Clicked on piece ${pieceValue} at (${logicalX}, ${logicalY})`);
                     });
                 }
@@ -260,6 +262,7 @@ function logicalToVisual(r,c,rows,cols){
 // handle ctrl+click planning in capture phase to intercept before piece click
 document.addEventListener('click', function(evt){
     // planning (Ctrl) or premove (Alt)
+    if(typeof window !== 'undefined' && window.AI_THINKING) return; // disable planning while AI thinking
     if(!(evt.ctrlKey || evt.altKey)) return;
     const tileEl = evt.target.closest && evt.target.closest('#game-board .tile');
     if(!tileEl) return;

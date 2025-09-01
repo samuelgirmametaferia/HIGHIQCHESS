@@ -1,6 +1,13 @@
 import { showMoves, inCheck, isCheckmate } from "./gameEngine.js";
 
+// Safety: add iterative deepening + time budget to avoid locking the page.
+// If time expires, the search will throw a TimeoutError which is caught by the caller
+// and the last completed depth result will be returned.
+class TimeoutError extends Error {}
+
 // New: Negamax with alpha-beta and simple eval. Supports variable depth.
+// globalState tracks search progress and deadline across recursive calls
+let globalState = { nodes: 0, deadline: 0, aborted: false };
 function cloneBoard(board) { return JSON.parse(JSON.stringify(board)); }
 
 function materialScore(board, color) {
@@ -87,12 +94,14 @@ function applyMove(board, mv, color){
 
 // quiescence: only consider captures until quiet
 function quiescence(board, color, alpha, beta) {
+	if(globalState.aborted) throw new TimeoutError('timeout');
 	const stand = evalBoard(board, color);
 	if (stand >= beta) return beta;
 	if (alpha < stand) alpha = stand;
 
 	const moves = generateMoves(board, color).filter(m=>m.isCapture);
 	for (const mv of moves) {
+		if((++globalState.nodes & 1023) === 0){ if(performance.now() > globalState.deadline) { globalState.aborted = true; throw new TimeoutError('timeout'); } }
 		const sim = applyMove(board, mv, color);
 		if (inCheck(sim, color)) continue;
 		const score = -quiescence(sim, color === 'w' ? 'b' : 'w', -beta, -alpha);
@@ -103,6 +112,8 @@ function quiescence(board, color, alpha, beta) {
 }
 
 function negamax(board, color, depth, alpha, beta) {
+	if(globalState.aborted) throw new TimeoutError('timeout');
+	if((++globalState.nodes & 1023) === 0){ if(performance.now() > globalState.deadline) { globalState.aborted = true; throw new TimeoutError('timeout'); } }
 	if (depth <= 0) {
 		// quiescence search to avoid horizon effect
 		const q = quiescence(board, color, alpha, beta);
@@ -117,6 +128,7 @@ function negamax(board, color, depth, alpha, beta) {
 	let bestScore = -Infinity;
 	let bestMove = null;
 	for (const mv of moves) {
+		if(globalState.aborted) throw new TimeoutError('timeout');
 		const sim = applyMove(board, mv, color);
 		if (inCheck(sim, color)) continue; // illegal: left king in check
 		const res = negamax(sim, color === 'w' ? 'b' : 'w', depth - 1, -beta, -alpha);
@@ -129,10 +141,38 @@ function negamax(board, color, depth, alpha, beta) {
 }
 
 // exported: findBestMove(board, color, depth=2)
-export function findBestMove(board, color, depth = 2) {
-	// clamp depth
-	depth = Math.max(1, Math.min(10, depth));
-	const result = negamax(board, color, depth, -Infinity, Infinity);
-	if (!result || !result.move) return null;
-	return { fromRow: result.move.fromRow, fromCol: result.move.fromCol, toRow: result.move.toRow, toCol: result.move.toCol, pieceIndex: result.move.pieceIndex };
+export function findBestMove(board, color, depth = 2, options = {}) {
+	// depth and timing safety
+	const MAX_DEPTH = 6; // keep it reasonable to avoid CPU spikes
+	const maxDepth = Math.max(1, Math.min(MAX_DEPTH, depth || 2));
+	const timeLimit = typeof options.timeLimitMs === 'number' ? options.timeLimitMs : 1000; // ms
+	const onProgress = typeof options.onProgress === 'function' ? options.onProgress : null;
+
+	// iterative deepening: try depths 1..maxDepth and keep last completed result
+	let lastCompleted = null;
+	// initialize global state used by search to enforce deadline
+	globalState.nodes = 0;
+	for (let d = 1; d <= maxDepth; d++){
+		globalState.deadline = performance.now() + timeLimit;
+		globalState.aborted = false;
+		try{
+			const res = negamax(board, color, d, -Infinity, Infinity);
+			if(res && res.move){ lastCompleted = res; }
+			// report progress after each completed depth
+			if(onProgress && lastCompleted && lastCompleted.move){
+				try{ onProgress({ depth: d, move: { fromRow: lastCompleted.move.fromRow, fromCol: lastCompleted.move.fromCol, toRow: lastCompleted.move.toRow, toCol: lastCompleted.move.toCol, pieceIndex: lastCompleted.move.pieceIndex }, nodes: globalState.nodes }); }catch(e){}
+			}
+		}catch(err){
+			if(err instanceof TimeoutError){
+				// time expired; return last completed depth result
+				break;
+			}else{
+				console.error('Search failed', err);
+				break;
+			}
+		}
+	}
+	if(!lastCompleted || !lastCompleted.move) return null;
+	const mv = lastCompleted.move;
+	return { fromRow: mv.fromRow, fromCol: mv.fromCol, toRow: mv.toRow, toCol: mv.toCol, pieceIndex: mv.pieceIndex };
 }
