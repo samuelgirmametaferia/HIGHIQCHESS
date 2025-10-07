@@ -1,15 +1,46 @@
 import { showMoves, movePiece} from "./gameEngine.js";
 import { validSquare } from "./gameEngine.js";
 import { inCheck, hasLegalMoves } from "./gameEngine.js";
-let imgPull = ["./pieces/0.svg",
+
+const baseSprites = [
+    "./pieces/0.svg",
     "./pieces/1.svg",
     "./pieces/2.svg",
     "./pieces/3.svg",
     "./pieces/4.svg",
-    "./pieces/5.svg",
-    // 6 is not available in pieces/ — guard against out-of-range
-    "./sprites/dot.svg",
-    "./sprites/take.svg"];
+    "./pieces/5.svg"
+];
+
+const playerSprites = [
+    "./pieces/player/0.svg",
+    "./pieces/player/1.svg",
+    "./pieces/player/2.svg",
+    "./pieces/player/3.svg",
+    "./pieces/player/4.svg",
+    "./pieces/player/5.svg"
+];
+
+const enemySprites = [
+    "./pieces/enemy/0.svg",
+    "./pieces/enemy/1.svg",
+    "./pieces/enemy/2.svg",
+    "./pieces/enemy/3.svg",
+    "./pieces/enemy/4.svg",
+    "./pieces/enemy/5.svg"
+];
+
+const overlaySprites = {
+    move: "./sprites/dot.svg",
+    capture: "./sprites/take.svg"
+};
+
+function resolvePieceSprite(pieceIndex, isPlayerPiece){
+    if(typeof pieceIndex !== 'number' || pieceIndex < 0){
+        return baseSprites[0];
+    }
+    const source = isPlayerPiece ? playerSprites : enemySprites;
+    return source[pieceIndex] || baseSprites[pieceIndex] || baseSprites[0];
+}
 let gameBoard = document.getElementById("game-board");
 //I CAN'T BELIEVE I NEEED A FUNCTION FOR THIS.
 /*
@@ -53,6 +84,11 @@ export function renderBoard(board2D) {
     const cols = boardCols;
     const rotated = (playerColor === 'b'); // ensure player's side is shown at bottom
 
+    if(gameBoard){
+        gameBoard.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        gameBoard.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+    }
+
     // Render in visual order (visY, visX). Map visual -> logical coords depending on rotation.
     for (let visY = 0; visY < rows; visY++) {
         for (let visX = 0; visX < cols; visX++) {
@@ -71,9 +107,9 @@ export function renderBoard(board2D) {
                 const piece = document.createElement("img");
                 piece.classList.add("piece");
                 const pieceIndex = parseInt(pieceValue[1], 10);
-                // guard for out-of-range images
-                piece.src = imgPull[pieceIndex] || imgPull[0];
-                if (pieceValue[0] === playerColor) {
+                const isPlayerPiece = (pieceValue[0] === playerColor);
+                piece.src = resolvePieceSprite(pieceIndex, isPlayerPiece);
+                if (isPlayerPiece) {
                     piece.classList.add("Player");
                 } else {
                     piece.classList.add("AI");
@@ -112,6 +148,9 @@ export function renderBoard(board2D) {
         const letters = 'abcdefgh'.slice(0, cols).split('');
         const numbers = Array.from({length: rows}, (_,i)=> (i+1).toString());
         const filesOrder = rotated ? letters.slice().reverse() : letters;
+        const filesTemplate = `repeat(${cols}, 1fr)`;
+        filesTop.style.gridTemplateColumns = filesTemplate;
+        filesBottom.style.gridTemplateColumns = filesTemplate;
         filesTop.innerHTML = '';
         filesBottom.innerHTML = '';
         for(const f of filesOrder){ filesTop.innerHTML += `<div class="coord">${f}</div>`; filesBottom.innerHTML += `<div class="coord">${f}</div>` }
@@ -119,10 +158,13 @@ export function renderBoard(board2D) {
         ranksRight.innerHTML = '';
         // ranks shown top->bottom (visual order)
         const ranksVisual = rotated ? numbers.slice().map(n=>n) : numbers.slice().reverse();
+        const ranksTemplate = `repeat(${rows}, 1fr)`;
+        ranksLeft.style.gridTemplateRows = ranksTemplate;
+        ranksRight.style.gridTemplateRows = ranksTemplate;
         for(const r of ranksVisual){ ranksLeft.innerHTML += `<div class="coord">${r}</div>`; ranksRight.innerHTML += `<div class="coord">${r}</div>` }
     }
     // redraw any planning arrows after the board is in the DOM
-    setTimeout(()=> redrawPlans(), 10);
+    setTimeout(()=>{ syncOverlayWithBoard(); redrawPlans(); }, 16);
 }
 
 // ----- Planning arrows & premoves support -----
@@ -131,6 +173,19 @@ let _premoves = []; // premove arrows [{fromRow, fromCol, toRow, toCol}]
 let _planStart = null;
 let _premoveStart = null;
 let overlay = null;
+
+function syncOverlayWithBoard(){
+    if(!overlay) return;
+    const wrap = document.querySelector('.board-wrap');
+    const boardEl = document.getElementById('game-board');
+    if(!wrap || !boardEl) return;
+    const wrapRect = wrap.getBoundingClientRect();
+    const boardRect = boardEl.getBoundingClientRect();
+    overlay.style.left = `${boardRect.left - wrapRect.left}px`;
+    overlay.style.top = `${boardRect.top - wrapRect.top}px`;
+    overlay.style.width = `${boardRect.width}px`;
+    overlay.style.height = `${boardRect.height}px`;
+}
 
 function ensureOverlay(){
     if(overlay) return overlay;
@@ -145,10 +200,11 @@ function ensureOverlay(){
         overlay.style.position = 'absolute';
         overlay.style.left = '0';
         overlay.style.top = '0';
-        overlay.style.width = '100%';
-        overlay.style.height = '100%';
+        overlay.style.width = '0';
+        overlay.style.height = '0';
         overlay.style.pointerEvents = 'none';
         wrap.appendChild(overlay);
+        requestAnimationFrame(()=> syncOverlayWithBoard());
     }
     return overlay;
 }
@@ -159,6 +215,7 @@ function clearOverlayChildren(){
 
 function redrawPlans(){
     const o = ensureOverlay(); if(!o) return;
+    syncOverlayWithBoard();
     clearOverlayChildren();
     const rows = currentBoard ? currentBoard.length : 0;
     const cols = boardCols || (currentBoard && currentBoard[0] && currentBoard[0].length) || 8;
@@ -310,7 +367,7 @@ export function addPremove(p){ _premoves.length = 0; _premoves.push(p); setTimeo
 export function clearPremoves(){ _premoves.length = 0; _premoveStart = null; setTimeout(()=> redrawPlans(),10); }
 
 // redraw plans when board rerenders or window resizes
-window.addEventListener('resize', ()=>{ setTimeout(()=> redrawPlans(), 50); });
+window.addEventListener('resize', ()=>{ setTimeout(()=>{ syncOverlayWithBoard(); redrawPlans(); }, 60); });
 
 // call redraw after each renderBoard run (simple timeout to ensure DOM ready)
 const origRender = renderBoard;
@@ -328,11 +385,7 @@ function addDots(sR, sC,apieceIndex, color,pR, pC, take = false)
     const piece = document.createElement("img");
     const tile = tiles[index];
     piece.classList.add("piece");
-    // dot and take graphics are expected to be the last two entries in imgPull
-    const dotIndex = Math.max(0, imgPull.length - 2);
-    const takeIndex = Math.max(0, imgPull.length - 1);
-    const pieceIndex = take ? takeIndex : dotIndex;
-    piece.src = imgPull[pieceIndex];
+    piece.src = take ? overlaySprites.capture : overlaySprites.move;
     // class should match semantics: 'dot' for move, 'take' for capture
     piece.classList.add(take ? "take" : "dot");
     piece.style.pointerEvents = "auto";

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true">
+  <defs>
+    <linearGradient id="enemyStrikerGrad" x1="0" x2="1">
+      <stop offset="0" stop-color="#cbe4ff"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+
+    <filter id="enemyGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0" stdDeviation="20" flood-color="#3b82f6" flood-opacity="0.92"/>
+    </filter>
+  </defs>
+
+  <rect width="100" height="100" fill="none"/>
+
+  <g transform="translate(10,10)" filter="url(#enemyGlow)">
+    <circle cx="40" cy="40" r="32" fill="url(#enemyStrikerGrad)"/>
+    <path d="M40 6 L40 74 M6 40 L74 40" stroke="#eaf2ff" stroke-width="6" stroke-linecap="round"/>
+    <polygon points="40,2 46,14 54,16 48,24 50,36 40,30 30,36 32,24 26,16 34,14" fill="#f1f8ff" opacity="0.9"/>
+  </g>
+</svg>

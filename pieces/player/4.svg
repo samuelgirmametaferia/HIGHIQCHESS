@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true">
+  <defs>
+    <linearGradient id="enemyShardGrad" x1="0" x2="1">
+      <stop offset="0" stop-color="#d7edff"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+
+    <filter id="enemyGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0" stdDeviation="20" flood-color="#3b82f6" flood-opacity="0.92"/>
+    </filter>
+  </defs>
+
+  <rect width="100" height="100" fill="none"/>
+
+  <g transform="translate(10,8)" filter="url(#enemyGlow)">
+
+    <polygon points="40,6 74,84 6,84" fill="url(#enemyShardGrad)" />
+    <line x1="40" y1="10" x2="40" y2="78" stroke="#0d2f6c" stroke-width="4"/>
+    <polygon points="40,20 52,68 28,68" fill="#eaf4ff" opacity="0.12"/>
+    <polygon points="74,12 76,18 82,18 77,22 78,28 74,24 70,28 71,22 66,18 72,18" fill="#f1f8ff" opacity="0.9"/>
+  </g>
+</svg>
